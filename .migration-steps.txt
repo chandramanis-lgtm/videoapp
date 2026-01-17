@@ -1,0 +1,82 @@
+╔═══════════════════════════════════════════════════════════════╗
+║      VideoApp: SQL to MongoDB Migration Quick Guide           ║
+╚═══════════════════════════════════════════════════════════════╝
+
+STEP 1: Start MongoDB
+──────────────────────────────────────────────────────────────
+Using Docker (Recommended):
+  docker run -d -p 27017:27017 --name videoapp-mongo mongo:latest
+
+Using Local Installation:
+  sudo systemctl start mongod (Linux)
+  brew services start mongodb-community (macOS)
+  net start MongoDB (Windows)
+
+Verify:
+  mongosh
+
+
+STEP 2: Run Migration Script
+──────────────────────────────────────────────────────────────
+  cd /workspaces/videoapp
+  node scripts/migrate.js
+
+This will:
+  ✓ Create users (instructor, admin)
+  ✓ Create 3 sample courses
+  ✓ Create 4 sample batches
+  ✓ Create subjects by course
+  ✓ Import video metadata
+  ✓ Add sample enquiries
+
+
+STEP 3: Verify Data
+──────────────────────────────────────────────────────────────
+  mongosh
+  use videoapp_lms
+  show collections
+  db.users.countDocuments()
+  db.courses.countDocuments()
+  db.batches.countDocuments()
+
+
+STEP 4: Start Your App
+──────────────────────────────────────────────────────────────
+  npm start
+
+Then test:
+  curl http://localhost:5000/api/health
+  curl http://localhost:5000/api/courses
+
+
+MIGRATION MAPPING
+──────────────────────────────────────────────────────────────
+SQL Table              →  MongoDB Collection
+crm_register_user      →  users ✅
+crm_course_details     →  courses ✅
+crm_batch_details      →  batches ✅
+crm_subject_details    →  subjects ✅
+crm_android_videos     →  videos ✅
+crm_enquiry_details    →  enquiries ✅
+crm_transactions       →  transactions ⏳
+crm_student_activity   →  (tracking) ⏳
+
+
+TROUBLESHOOTING
+──────────────────────────────────────────────────────────────
+❌ "Connection refused"
+  → MongoDB not running. Start with: docker run -d -p 27017:27017 mongo:latest
+
+❌ "Duplicate key error"
+  → Existing data. Drop and restart:
+    mongosh
+    use videoapp_lms
+    db.dropDatabase()
+    exit
+    node scripts/migrate.js
+
+❌ Migration script not found
+  → Ensure you're in /workspaces/videoapp directory
+  → Run: pwd
+
+For detailed help, see: MIGRATION.md
