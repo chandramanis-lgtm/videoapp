@@ -1,0 +1,13 @@
+.app-content {
+  min-height: calc(100vh - 70px);
+  padding: 20px;
+}
+
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  font-size: 18px;
+  color: #666;
+}
